@@ -23,15 +23,15 @@ public final class Compiler {
     // Prevents illegal states.
     throw new IllegalStateException("Utility class.");
   }
-  
+
   /**
    * Helper function to get everything in a line after a keyword.
-   * 
+   *
    * @param line    The line to check.
    * @param keyword The keyword to check for.
    * @return A string that contains everything after the keyword.
    */
-  private static String afterKeyword(String line, String keyword) {
+  private static String afterKeyword(final String line, final String keyword) {
     // substring() returns a string starting from keyword.length() to the end.
     return line.substring(keyword.length());
   }
@@ -74,6 +74,12 @@ public final class Compiler {
         // FUNCTION CLOSE
         // Decrement indentation level
         indentLevel -= 1;
+      } else if (trimmedLine.startsWith("RETURN")) {
+        // RETURN STATEMENT
+        String returnValue = afterKeyword(trimmedLine, "RETURN");
+        // RETURN value  -->  return value
+        // RETURN --> return
+        pythonLine = "return " + returnValue;
       } else if (trimmedLine.startsWith("IF ")) {
         // IF STATEMENT
         String ifCondition = afterKeyword(trimmedLine, "IF ");
@@ -84,28 +90,47 @@ public final class Compiler {
         // IF STATEMENT CLOSE
         // Decrement indentation level
         indentLevel -= 1;
+      } else if (trimmedLine.startsWith("WHILE ")) {
+        // WHILE LOOP STATEMENT
+        String whileCondition = afterKeyword(trimmedLine, "WHILE ");
+        // WHILE condition  -->  while (condition):
+        pythonLine = "while (" + whileCondition + "):";
+        indentLevel += 1;
+      } else if (trimmedLine.equals("ENDWHILE")) {
+        // WHILE LOOP CLOSE
+        // Decrement indentation level
+        indentLevel -= 1;
       } else if (trimmedLine.startsWith("SET ")) {
         // ASSIGNMENT STATEMENT
         String assignment = afterKeyword(trimmedLine, "SET ");
+        // SET var = value  -->  var = value
         pythonLine = assignment;
       } else if (trimmedLine.startsWith("PRINT ")) {
         // PRINT STATEMENT
         String printArgument = afterKeyword(trimmedLine, "PRINT ");
-        pythonLine = "print(" + printArgument + ")";
+        // PRINT value  -->  print(value, end="")
+        pythonLine = "print(" + printArgument + ", end=\"\")";
       } else if (trimmedLine.startsWith("GETSTRING ")) {
         // STRING INPUT STATEMENT
         String varName = afterKeyword(trimmedLine, "GETSTRING ");
+        // GETSTRING varName  -->  varName = input()
         pythonLine = varName + " = input()";
       } else if (trimmedLine.startsWith("CASTASNUM ")) {
         // TYPE CASTING TO NUMBER STATEMENT
         String varName = afterKeyword(trimmedLine, "CASTASNUM ");
+        // CASTASNUM varName  -->  varName = float(varName)
         pythonLine = varName + " = float(" + varName + ")";
       } else if (trimmedLine.startsWith("#")) {
         // COMMENT
+        // Comment lines are the same in both languages
+        pythonLine = trimmedLine;
+      } else if (trimmedLine.isEmpty()) {
+        // EMPTY LINE
         pythonLine = trimmedLine;
       } else {
         // UNRECOGNIZED LINE
-        pythonLine = "# FAILED TO PROCESS LINE " + lineNum;
+        code = "ERROR: FAILED TO PROCESS LINE " + lineNum;
+        break;
       }
 
       // CHECK IF INDENTATION LEVEL IS VALID
