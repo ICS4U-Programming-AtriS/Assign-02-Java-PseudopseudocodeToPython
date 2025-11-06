@@ -133,13 +133,6 @@ public final class Compiler {
         break;
       }
 
-      // CHECK IF INDENTATION LEVEL IS VALID
-      if (indentLevel < 0) {
-        // ERROR MESSAGE
-        code = "ERROR: UNEXPECTED CLOSE AT LINE " + lineNum;
-        break;
-      }
-
       // Add the converted line to the code string
       code += pythonLine;
       // Add newline
